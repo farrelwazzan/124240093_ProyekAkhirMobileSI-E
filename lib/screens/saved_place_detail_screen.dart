@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -6,7 +7,7 @@ import '../models/saved_place.dart';
 import '../providers/saved_place_provider.dart';
 import 'saved_place_form_screen.dart';
 
-class SavedPlaceDetailScreen extends StatelessWidget {
+class SavedPlaceDetailScreen extends StatefulWidget {
   final SavedPlace place;
 
   const SavedPlaceDetailScreen({
@@ -14,8 +15,23 @@ class SavedPlaceDetailScreen extends StatelessWidget {
     required this.place,
   });
 
+  @override
+  State<SavedPlaceDetailScreen> createState() =>
+      _SavedPlaceDetailScreenState();
+}
+
+class _SavedPlaceDetailScreenState
+    extends State<SavedPlaceDetailScreen> {
+  late SavedPlace place;
+
+  @override
+  void initState() {
+    super.initState();
+    place = widget.place;
+  }
+
   // Membuka Google Maps
-  Future<void> _openMaps(BuildContext context) async {
+  Future<void> _openMaps() async {
     final uri = Uri.tryParse(place.mapsUrl);
 
     if (uri == null ||
@@ -36,7 +52,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
         mode: LaunchMode.externalApplication,
       );
 
-      if (!launched && context.mounted) {
+      if (!launched && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Tidak dapat membuka Google Maps.'),
@@ -44,7 +60,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
         );
       }
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -55,10 +71,10 @@ class SavedPlaceDetailScreen extends StatelessWidget {
   }
 
   // Membuka halaman edit
-  void _editPlace(BuildContext context) {
+  Future<void> _editPlace() async {
     final provider = context.read<SavedPlaceProvider>();
 
-    Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(
@@ -67,10 +83,22 @@ class SavedPlaceDetailScreen extends StatelessWidget {
         ),
       ),
     );
+
+    if (!mounted || result != true) return;
+
+    // Ambil data terbaru dari Provider
+    final updatedPlace = provider.savedPlaces.firstWhere(
+      (item) => item.id == place.id,
+      orElse: () => place,
+    );
+
+    setState(() {
+      place = updatedPlace;
+    });
   }
 
   // Menghapus tempat
-  Future<void> _deletePlace(BuildContext context) async {
+  Future<void> _deletePlace() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -96,7 +124,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
       },
     );
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true || !mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
 
@@ -105,7 +133,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
           .read<SavedPlaceProvider>()
           .deleteSavedPlace(place.id);
 
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       Navigator.pop(context);
 
@@ -115,7 +143,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
         ),
       );
     } catch (e) {
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       messenger.showSnackBar(
         SnackBar(
@@ -180,7 +208,6 @@ class SavedPlaceDetailScreen extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 10),
-
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
@@ -208,9 +235,8 @@ class SavedPlaceDetailScreen extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 10),
-
             InkWell(
-              onTap: () => _openMaps(context),
+              onTap: _openMaps,
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 width: double.infinity,
@@ -251,7 +277,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _editPlace(context),
+                    onPressed: _editPlace,
                     icon: const Icon(Icons.edit),
                     label: const Text('Edit'),
                     style: OutlinedButton.styleFrom(
@@ -262,7 +288,7 @@ class SavedPlaceDetailScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => _deletePlace(context),
+                    onPressed: _deletePlace,
                     icon: const Icon(Icons.delete_outline),
                     label: const Text('Hapus'),
                     style: ElevatedButton.styleFrom(

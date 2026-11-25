@@ -119,6 +119,7 @@ class RestaurantDetailScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Foto restoran jika tersedia
+// Foto restoran hanya ditampilkan jika tersedia
             if (hasImage)
               Image.network(
                 restaurant.imageUrl!,
@@ -126,28 +127,8 @@ class RestaurantDetailScreen extends StatelessWidget {
                 height: 220,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) {
-                  return Container(
-                    height: 180,
-                    width: double.infinity,
-                    color: Colors.grey.shade200,
-                    child: const Icon(
-                      Icons.restaurant,
-                      size: 64,
-                      color: Colors.grey,
-                    ),
-                  );
+                  return const SizedBox.shrink();
                 },
-              )
-            else
-              Container(
-                height: 180,
-                width: double.infinity,
-                color: Colors.grey.shade200,
-                child: const Icon(
-                  Icons.restaurant,
-                  size: 64,
-                  color: Colors.grey,
-                ),
               ),
 
             Padding(

@@ -56,16 +56,34 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         );
       }
-    } catch (e) {
-      if (!mounted) return;
+      } catch (e) {
+        if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
+        String message;
+
+        final error = e.toString().toLowerCase();
+
+        if (error.contains('invalid login credentials')) {
+          message = 'Email atau password yang kamu masukkan salah.';
+        } else if (error.contains('user already registered')) {
+          message = 'Email sudah terdaftar. Silakan login.';
+        } else if (error.contains('password should be')) {
+          message = 'Password belum memenuhi ketentuan.';
+        } else if (error.contains('email not confirmed')) {
+          message = 'Email belum dikonfirmasi.';
+        } else {
+          message = isLogin
+              ? 'Login gagal. Periksa kembali data akunmu.'
+              : 'Registrasi gagal. Silakan coba kembali.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } finally {
       if (mounted) {
         setState(() {
           isLoading = false;

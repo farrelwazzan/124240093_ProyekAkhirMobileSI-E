@@ -30,6 +30,11 @@ class _MainNavigationScreenState
                 selectedIndex = 1;
               });
             },
+            onOpenProfile: () {
+              setState(() {
+                selectedIndex = 3;
+              });
+            },
           ),
           const RestaurantListScreen(),
           const SavedScreen(),

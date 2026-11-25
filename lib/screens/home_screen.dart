@@ -5,13 +5,16 @@ import 'package:provider/provider.dart';
 import '../providers/location_provider.dart';
 import '../providers/restaurant_provider.dart';
 import '../utils/distance_helper.dart';
+import 'restaurant_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onSeeAll;
+  final VoidCallback onOpenProfile;
 
   const HomeScreen({
     super.key,
     required this.onSeeAll,
+    required this.onOpenProfile,
   });
 
   @override
@@ -104,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: widget.onOpenProfile,
                     icon: const Icon(Icons.person_outline),
                   ),
                 ],
@@ -114,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               // Greeting
               const Text(
-                'Lagi lapar? 👋',
+                'Lagi lapar?',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -180,6 +183,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => RestaurantDetailScreen(
+                              restaurant: restaurant,
+                            ),
+                          ),
+                        );
+                      },
                       leading: const CircleAvatar(
                         child: Icon(Icons.restaurant),
                       ),
@@ -188,6 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         '${restaurant.category.name} • '
                         '${DistanceHelper.formatDistance(distance)}',
                       ),
+                      trailing: const Icon(Icons.chevron_right),
                     ),
                   );
                 }),

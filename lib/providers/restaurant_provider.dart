@@ -19,7 +19,7 @@ class RestaurantProvider extends ChangeNotifier {
     required double longitude,
   }) async {
     if (isLoading) return;
-    
+
     isLoading = true;
     error = null;
     notifyListeners();
@@ -50,10 +50,11 @@ class RestaurantProvider extends ChangeNotifier {
         return distanceA.compareTo(distanceB);
       });
     } catch (e) {
-      error = e.toString();
+      error =
+          'Kuliner belum dapat dimuat. Periksa koneksi internet atau coba beberapa saat lagi.';
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    isLoading = false;
-    notifyListeners();
   }
 }
